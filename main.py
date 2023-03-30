@@ -3,19 +3,19 @@ import re
 import openai
 
 
-def generate_questions_for_obsidian_files(api_key, folder_path):
+def generate_questions_for_obsidian_files(api_key_input, folder_path_input, search_tags, target_deck, custom_tags):
     """Main Function: Generates questions for all .md files in the specified folder
     that contain both the #aws and #cloud hashtags and returns the new Folder Path"""
 
-    openai.api_key = api_key
+    openai.api_key = api_key_input
     prompt = "Füge eine Frage für den folgenden Text auf deutsch hinzu.\n"
 
-    new_folder_path = create_new_directory(folder_path)
-    obsidian_files = find_obsidian_files_with_tags(folder_path)
+    new_folder_path = create_new_directory(folder_path_input)
+    obsidian_files = find_obsidian_files_with_tags(folder_path_input)
 
     for file in obsidian_files:
         print(f'Generating questions for {file}...')
-        contents = read_file_contents(os.path.join(folder_path, file))
+        contents = read_file_contents(os.path.join(folder_path_input, file))
         paragraphs = contents.split('Break:')
 
         question_per_paragraph = process_paragraphs(prompt, paragraphs)
@@ -51,7 +51,7 @@ def find_obsidian_files_with_tags(folder_path):
         contents = read_file_contents(os.path.join(folder_path, file))
         if re.search(r'#aws', contents, re.IGNORECASE) and re.search(r'#cloud', contents, re.IGNORECASE):
             matching_files.append(file)
-    return matching_files[:1]
+    return matching_files
 
 
 def process_paragraphs(prompt, paragraphs):
@@ -76,7 +76,5 @@ def generate_question(text):
     reply_content = completion.choices[0].message.content
     return reply_content
 
-
 api_key = read_file_contents('api.txt').strip('\n')
 folder_path = '/Users/hendrikwels/Library/Mobile Documents/iCloud~md~obsidian/Documents/Book Notes'
-new_folder_path = generate_questions_for_obsidian_files(api_key, folder_path)
